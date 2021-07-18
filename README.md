@@ -8,7 +8,13 @@ NGS Log Action は [PSO2NGS][] のチャットに連動して「何か」をし�
 + `if` チャットで自分の名前を呼ばれていたら `=>` お好みの通知音を鳴らす
 + `if` `PUBLIC` 誰かがチャット（＝白チャット）で「雷雨」と発言していたら `=>` お好みの通知音を鳴らす
 + `if` `PARTY` または `GROUP` チャットで `/ラッピー/` と発言していたら `=>` お好みのコマンドを実行して何かをする
-+ `if` `GUILD` 自分がチャットで「〘緊急警報発令〙ネクス・ヴェラ」と発言したら `=>` `https://example.com/our_guild_sns/api` を叩く
++ `if` `GUILD` 自分がチャットで「〘緊急警報発令〙ネクス・ヴェラ」と発言したら `=>` Web API `https://example.com/our_guild_sns/api` を叩く
+  + 応用するとPSO2NGSでチャットに特定のキーワードを書いたり聞いたりしたら Web API 経由で Discord や Twitter の BOT に何かしてもらう、伝言のように転送して貰うこともできます。
+
+### 動作例のスクリーンショット
+
+![動作中のログ表示の様子](README.assets/ss1.png "動作中のログ表示の様子")
+![PSO2NGSのチャットからDiscordへbot経由で伝言して貰った動作試験の様子](README.assets/ss2.png "PSO2NGSのチャットからDiscordへbot経由で伝言して貰った動作試験の様子")
 
 ## 使い方
 
