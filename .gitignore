@@ -2,3 +2,4 @@
 *.lnk
 Cargo.lock
 /.vscode
+/packaging
