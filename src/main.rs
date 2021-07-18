@@ -94,7 +94,7 @@ async fn main() -> Result<()> {
  // println!("conf={:?}", CONF.r#if);
  let mut last_datetime = get_last_datetime().await?;
  println!("[System]\tNGS Log Action 起動");
- println!("[Debug]\tlast_datetime: {:?}", last_datetime);
+ // println!("[Debug]\tlast_datetime: {:?}", last_datetime);
  loop {
   let new_lines = get_new_lines(last_datetime).await?;
   if !new_lines.is_empty() {
