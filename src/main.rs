@@ -246,7 +246,7 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
   }
   if let Some(ref post) = action.post {
    let url = post;
-   println!("[Debug]\tpost url={}", url);
+   // println!("[Debug]\tpost url={}", url);
    let mut response = surf::post(url)
     .header("user-agent", "NGS Log Action")
     .header("ngs-log-action-name", &ngs_log.name)
