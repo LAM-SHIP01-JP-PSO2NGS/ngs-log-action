@@ -71,6 +71,9 @@ struct If {
  channels: Option<Vec<NgsLogChannel>>,
  keywords: Option<Vec<String>>,
  regex: Option<String>,
+ ignore_names: Option<Vec<String>>,
+ ignore_keywords: Option<Vec<String>>,
+ ignore_regex: Option<String>,
  action: Option<Action>,
 }
 
@@ -147,6 +150,28 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
  if let Some(ref regex) = r#if.regex {
   let regex = regex::Regex::new(regex)?;
   if !regex.is_match(&ngs_log.body) {
+   return Ok(());
+  }
+ }
+
+ // ignore- series
+ if let Some(ref ignore_names) = r#if.ignore_names {
+  if ignore_names.contains(&ngs_log.name) {
+   return Ok(());
+  }
+ }
+ if let Some(ref ignore_keywords) = r#if.ignore_keywords {
+  // println!("ignore_keywords {:?}", ignore_keywords);
+  if ignore_keywords
+   .iter()
+   .any(|ignore_keyword| ngs_log.body.find(ignore_keyword).is_some())
+  {
+   return Ok(());
+  }
+ }
+ if let Some(ref ignore_regex) = r#if.ignore_regex {
+  let ignore_regex = regex::Regex::new(ignore_regex)?;
+  if ignore_regex.is_match(&ngs_log.body) {
    return Ok(());
   }
  }
