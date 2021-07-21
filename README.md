@@ -15,7 +15,7 @@ NGS Log Action は [PSO2NGS][] のチャットに連動して「何か」をし�
 
 ### 動作例のスクリーンショット
 
-![動作中のログ表示の様子(ver.1.2.0)](README.assets/ss1.png "動作中のログ表示の様子(ver.1.2.0)")
+![動作中のログ表示の様子(ver.1.2.0)](README.assets/ss3.png "動作中のログ表示の様子(ver.1.2.0)")
 ![動作中のログ表示の様子(ver.1.0.0)](README.assets/ss1.png "動作中のログ表示の様子(ver.1.0.0)")
 ![PSO2NGSのチャットからDiscordへbot経由で伝言して貰った動作試験の様子](README.assets/ss2.png "PSO2NGSのチャットからDiscordへbot経由で伝言して貰った動作試験の様子")
 
