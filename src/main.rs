@@ -19,6 +19,7 @@ use strum_macros::EnumString;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 use thiserror::Error;
 use toml;
+use unicode_width::UnicodeWidthStr;
 
 #[derive(Debug, Error)]
 enum NgsLogActionError {
@@ -62,7 +63,18 @@ struct NgsLog {
 
 #[derive(Debug, Deserialize)]
 struct Conf {
+ global: Option<Global>,
  r#if: Option<Vec<If>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct Global {
+ show_action_pattern: Option<bool>,
+ datetime_format: Option<String>,
+ show_channel: Option<bool>,
+ column_separator: Option<String>,
+ name_padding_width: Option<u8>,
+ channel_padding_width: Option<u8>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -86,6 +98,27 @@ struct Action {
  sound: Option<String>,
 }
 
+impl Conf {
+ fn is_show_action_pattern(&self) -> bool {
+  const DEFAULT_VALUE: bool = false;
+  match self.global {
+   Some(ref global) => global.show_action_pattern.unwrap_or(DEFAULT_VALUE),
+   _ => DEFAULT_VALUE,
+  }
+ }
+
+ fn get_column_separator(&self) -> String {
+  const DEFAULT_VALUE: &str = " ";
+  match self.global {
+   Some(ref global) => global
+    .column_separator
+    .clone()
+    .unwrap_or(DEFAULT_VALUE.to_string()),
+   _ => DEFAULT_VALUE.to_string(),
+  }
+ }
+}
+
 static CONF: Lazy<Conf> = Lazy::new(|| {
  let conf_str = fs::read_to_string("conf.toml").unwrap();
  let conf = toml::from_str(&conf_str).unwrap();
@@ -96,8 +129,8 @@ static CONF: Lazy<Conf> = Lazy::new(|| {
 async fn main() -> Result<()> {
  // println!("conf={:?}", CONF.r#if);
  let mut last_datetime = get_last_datetime().await?;
- println!("[System]\tNGS Log Action 起動");
- // println!("[Debug]\tlast_datetime: {:?}", last_datetime);
+ println!("[System]{}NGS Log Action 起動", CONF.get_column_separator());
+ // println!("[Debug] last_datetime: {:?}", last_datetime);
  loop {
   let new_lines = get_new_lines(last_datetime).await?;
   if !new_lines.is_empty() {
@@ -189,19 +222,79 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
      NgsLogChannel::Group => Color::Green,
     });
     stdout.set_color(ColorSpec::new().set_fg(color))?;
-    writeln!(&mut stdout,
-     // println!(
-     "[Action::Show]\t{:?}\t{:?}\t{}\t{}",
-     ngs_log.datetime,
-     ngs_log.channel,
-     ngs_log.name,
-     ngs_log.body
+
+    let column_separator = CONF.get_column_separator();
+
+    let action_pattern_part = if CONF.is_show_action_pattern() {
+     format!("[Action::Show]{}", column_separator)
+    } else {
+     column_separator.clone()
+    };
+
+    let datetime_part = match CONF.global {
+     Some(ref global) => match global.datetime_format {
+      Some(ref datetime_format) if datetime_format.is_empty() => "".to_string(),
+      Some(ref datetime_format) => format!(
+       "{}{}",
+       ngs_log.datetime.format(datetime_format),
+       column_separator
+      ),
+      _ => format!("{:?}{}", ngs_log.datetime, column_separator),
+     },
+     _ => format!("{:?}{}", ngs_log.datetime, column_separator),
+    };
+
+    let channel_stringify = || {
+     let channel_padding_width = match CONF.global {
+      Some(ref global) => match global.channel_padding_width {
+       Some(channel_padding_width) => channel_padding_width,
+       _ => 6,
+      },
+      _ => 6,
+     };
+     format!(
+      "{:<channel_padding_width$}{}",
+      format!("{:?}", ngs_log.channel),
+      column_separator,
+      channel_padding_width = channel_padding_width as usize
+     )
+     .to_uppercase()
+    };
+    let channel_part = match CONF.global {
+     Some(ref global) => match global.show_channel {
+      Some(show_channel) if !show_channel => "".to_string(),
+      _ => channel_stringify(),
+     },
+     _ => channel_stringify(),
+    };
+
+    let name_padding_width = match CONF.global {
+     Some(ref global) => match global.name_padding_width {
+      Some(name_padding_width) => name_padding_width,
+      _ => 30,
+     },
+     _ => 30,
+    };
+
+    let name_unicode_width = UnicodeWidthStr::width(&ngs_log.name[..]);
+    let name_padding = " "
+     .repeat(std::cmp::max(0i16, name_padding_width as i16 - name_unicode_width as i16) as usize);
+    let name_part = format!("{}{}{}", ngs_log.name, name_padding, column_separator);
+
+    writeln!(
+     &mut stdout,
+     "{}{}{}{}{}",
+     action_pattern_part, datetime_part, channel_part, name_part, ngs_log.body
     )?;
    }
    _ => (),
   }
   if let Some(ref sound_file_path) = action.sound {
-   println!("[Action::Sound] {}", sound_file_path);
+   println!(
+    "[Action::Sound]{}{}",
+    CONF.get_column_separator(),
+    sound_file_path
+   );
    // 仕方ないので暫定措置として最終手段っぽい方法で鳴らしておく
    let main_arg = format!(
     "(New-Object Media.SoundPlayer \"{}\").PlaySync()",
@@ -225,7 +318,11 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
    // sink.sleep_until_end();
   }
   if let Some(ref command) = action.command {
-   println!("[Action::Command] {:?}", command);
+   println!(
+    "[Action::Command]{}{:?}",
+    CONF.get_column_separator(),
+    command
+   );
    if let Some(c) = command.first() {
     if command.len() > 2 {
      let _output = Command::new(c).args(&command[1..]).output()?;
@@ -252,7 +349,8 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
     .map_err(|_| NgsLogActionError::ErrorCode(500))?;
    match response.content_type() {
     Some(content_type) if content_type.basetype() == "text" => println!(
-     "[Action::Get]\t{} => {} = {}",
+     "[Action::Get]{}{} => {} = {}",
+     CONF.get_column_separator(),
      &url,
      response.status(),
      response
@@ -261,7 +359,8 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
       .map_err(|_| NgsLogActionError::ErrorCode(501))?
     ),
     Some(content_type) => println!(
-     "[Action::Get]\t{} => {} (not a text, mime = {})",
+     "[Action::Get]{}{} => {} (not a text, mime = {})",
+     CONF.get_column_separator(),
      &url,
      response.status(),
      content_type
@@ -284,7 +383,8 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
     ;
    match response.content_type() {
     Some(content_type) if content_type.basetype() == "text" => println!(
-     "[Action::Post]\t{} => {} = {}",
+     "[Action::Post]{}{} => {} = {}",
+     CONF.get_column_separator(),
      &url,
      response.status(),
      response
@@ -293,7 +393,8 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
       .map_err(|_| NgsLogActionError::ErrorCode(511))?
     ),
     Some(content_type) => println!(
-     "[Action::Post]\t{} => {} (not a text, mime = {})",
+     "[Action::Post]{}{} => {} (not a text, mime = {})",
+     CONF.get_column_separator(),
      &url,
      response.status(),
      content_type
@@ -312,27 +413,43 @@ fn parse_datetime(datetime_string: &str) -> Result<DateTime<FixedOffset>> {
  Ok(datetime)
 }
 
-async fn get_ngs_logs_directory_path() -> Result<PathBuf> {
+async fn get_ngs_user_directory_path() -> Result<PathBuf> {
  let home_directory = home_dir().ok_or(NgsLogActionError::ErrorCode(1))?;
- let ngs_logs_directory_path = home_directory
+ let ngs_user_directory_path = home_directory
   .join("Documents")
   .join("SEGA")
-  .join("PHANTASYSTARONLINE2")
-  .join("log_ngs");
+  .join("PHANTASYSTARONLINE2");
+ Ok(ngs_user_directory_path)
+}
+
+async fn get_ngs_logs_directory_path() -> Result<PathBuf> {
+ let ngs_logs_directory_path = get_ngs_user_directory_path().await?.join("log_ngs");
+ Ok(ngs_logs_directory_path)
+}
+
+async fn get_pso2_logs_directory_path() -> Result<PathBuf> {
+ let ngs_logs_directory_path = get_ngs_user_directory_path().await?.join("log");
  Ok(ngs_logs_directory_path)
 }
 
 async fn get_latest_chat_log_file_path() -> Result<PathBuf> {
  let ngs_logs_path = get_ngs_logs_directory_path().await?;
- let directory_entries = fs::read_dir(ngs_logs_path)?;
- let mut directory_entries: Vec<_> = directory_entries.map(|a| a.unwrap()).collect();
- directory_entries.sort_by(|a, b| {
+ let ngs_directory_entries = fs::read_dir(ngs_logs_path)?;
+ let mut pso2ngs_directory_entries: Vec<_> = ngs_directory_entries.map(|a| a.unwrap()).collect();
+
+ let pso2_logs_path = get_pso2_logs_directory_path().await?;
+ let pso2_directory_entries = fs::read_dir(pso2_logs_path)?;
+ let mut pso2_directory_entries: Vec<_> = pso2_directory_entries.map(|a| a.unwrap()).collect();
+
+ pso2ngs_directory_entries.append(&mut pso2_directory_entries);
+
+ pso2ngs_directory_entries.sort_by(|a, b| {
   let a = a.metadata().unwrap().modified().unwrap();
   let b = b.metadata().unwrap().modified().unwrap();
   b.cmp(&a)
  });
 
- let latest_entry = directory_entries
+ let latest_entry = pso2ngs_directory_entries
   .iter()
   .find(|a| a.file_name().to_string_lossy().starts_with("ChatLog"))
   .ok_or(NgsLogActionError::ErrorCode(100))?;

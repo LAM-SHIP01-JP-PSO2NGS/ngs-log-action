@@ -7,7 +7,7 @@ keywords = ["pso2ngs", "ngss", "log", "action"]
 license = "MIT"
 name = "ngs-log-action"
 repository = "https://github.com/LMA-SHIP01-PSO2NGS/ngs-log-action"
-version = "1.1.0"
+version = "1.2.0"
 
 [dependencies]
 anyhow = "1.0.42"
@@ -28,5 +28,6 @@ regex = "1.5.4"
 surf = "2.2.0"
 urlencoding = "2.0.0"
 termcolor = "1.1.2"
+unicode-width = "0.1.8"
 # rodio = "0.14.0"
 # winaudio = "1.0.2"
