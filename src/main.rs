@@ -432,12 +432,24 @@ async fn get_pso2_logs_directory_path() -> Result<PathBuf> {
  Ok(ngs_logs_directory_path)
 }
 
+/// https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/1
 async fn get_latest_chat_log_file_path() -> Result<PathBuf> {
+ let last_modified_fix = |path: &PathBuf| {
+  if let Some(path_str) = path.to_str() {
+   let _output = Command::new("cmd")
+    .args(&["/c", "dir", "/A", "/R", "/Q", path_str])
+    .output()
+    .unwrap();
+  }
+ };
+
  let ngs_logs_path = get_ngs_logs_directory_path().await?;
+ last_modified_fix(&ngs_logs_path);
  let ngs_directory_entries = fs::read_dir(ngs_logs_path)?;
  let mut pso2ngs_directory_entries: Vec<_> = ngs_directory_entries.map(|a| a.unwrap()).collect();
 
  let pso2_logs_path = get_pso2_logs_directory_path().await?;
+ last_modified_fix(&pso2_logs_path);
  let pso2_directory_entries = fs::read_dir(pso2_logs_path)?;
  let mut pso2_directory_entries: Vec<_> = pso2_directory_entries.map(|a| a.unwrap()).collect();
 
