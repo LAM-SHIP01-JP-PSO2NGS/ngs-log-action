@@ -505,6 +505,18 @@ async fn get_last_datetime() -> Result<DateTime<FixedOffset>> {
  Ok(Local::now().with_timezone(&tz_offset))
 }
 
+fn unescape_double_quote(s: &str) -> String {
+ s.replacen(r#""""#, r#"""#, usize::MAX)
+}
+
+fn pre_unescape_double_quote(s: &str) -> String {
+ s.replacen(r#""""#, "\t", usize::MAX)
+}
+
+fn finish_unescape_double_quote(s: &str) -> String {
+ s.replacen("\t", r#"""#, usize::MAX)
+}
+
 async fn get_new_lines(last_datetime: DateTime<FixedOffset>) -> Result<Vec<NgsLog>> {
  let reader = get_latest_chat_log_reader().await?;
  let lines = reader.lines();
@@ -523,9 +535,9 @@ async fn get_new_lines(last_datetime: DateTime<FixedOffset>) -> Result<Vec<NgsLo
      let channel = NgsLogChannel::from_str(tail.next().unwrap()).unwrap();
      let player_id = tail.next().unwrap().parse()?;
      let name = tail.next().unwrap().to_string();
-     let mut body = tail.next().unwrap().replace(r#""""#, r#"""#);
+     let mut body = unescape_double_quote(tail.next().unwrap());
      // 複数行の最初の行
-     if body.chars().nth(0) == Some('"') && body.chars().nth(1) != Some('"') {
+     if body.starts_with(r#"""#) && body.char_indices().nth(1).unwrap().1 != '"' {
       body = body[1..].to_string();
      }
      new_lines.push(NgsLog {
@@ -540,15 +552,19 @@ async fn get_new_lines(last_datetime: DateTime<FixedOffset>) -> Result<Vec<NgsLo
     // 新規ログまたは新規ログの2行目以降
     _ => {
      if let Some(last_line) = new_lines.last_mut() {
+      let line = pre_unescape_double_quote(&line);
       // 新規ログの2行目以降
-      if line.chars().nth(line.len() - 1) == Some('"')
-       && line.chars().nth(line.len() - 2) != Some('"')
-      {
+      if line.chars().last() == Some('"') {
        // 複数行の最後の行( " で終端 )
-       (*last_line).body = format!("{}\n{}", last_line.body, &line[..line.len() - 1])
-      } else {
-       // 複数行の最後の途中の行
+       let line = finish_unescape_double_quote(&line[..line.len() - 1]);
        (*last_line).body = format!("{}\n{}", last_line.body, line)
+      } else {
+       // 複数行の途中の行
+       (*last_line).body = format!(
+        "{}\n{}",
+        last_line.body,
+        finish_unescape_double_quote(&line)
+       )
       }
      } else {
       // 前回検出した最後のログが複数行だった場合

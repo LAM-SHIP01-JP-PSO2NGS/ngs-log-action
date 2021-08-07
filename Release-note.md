@@ -1,3 +1,7 @@
+## 1.2.2 (2021-08-08)
+
++ [複数行のログの末尾に " がくっついてしまっている #2](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/2) 不具合を修正しました！
+
 ## 1.2.1 (2021-07-22)
 
 + [NGS と PSO2 をブロック移動すると最新のログが更新されなくなる状況が発生してしまう #1](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/1) 不具合を修正しました！
