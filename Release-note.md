@@ -1,3 +1,7 @@
+## 1.2.3 (2021-08-09)
+
++ [POSTアクションを使うとNGS Log Actionが落ちる場合があるらしい: 投稿者の名前が非ASCII文字を含む場合に100%発生 #3](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/3) 不具合を修正しました！
+
 ## 1.2.2 (2021-08-08)
 
 + [複数行のログの末尾に " がくっついてしまっている #2](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/2) 不具合を修正しました！

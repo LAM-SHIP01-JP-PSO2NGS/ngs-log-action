@@ -373,7 +373,7 @@ async fn apply_log_action(r#if: &If, ngs_log: &NgsLog) -> Result<()> {
    // println!("[Debug]\tpost url={}", url);
    let mut response = surf::post(url)
     .header("user-agent", "NGS Log Action")
-    .header("ngs-log-action-name", &ngs_log.name)
+    .header("ngs-log-action-name", urlencoding::encode(&ngs_log.name))
     .header("ngs-log-action-channel", format!("{:?}", ngs_log.channel))
     .header("ngs-log-action-datetime", ngs_log.datetime.to_string())
     .body(ngs_log.body.clone())
