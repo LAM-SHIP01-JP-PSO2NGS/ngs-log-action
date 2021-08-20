@@ -1,3 +1,15 @@
+[NGS Log Action Wiki]: https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki
+
+## 1.3.0 (2021-08-20)
+
++ [表示するログの色を好みに応じて変更](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/custom)できるようになりました！
++ [ログの取得間隔を変更](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/polling_rate)できるようになりました！
++ [取得アイテム集計機能](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/item)が実装されました！
+  + 拾ったまたはリワードで得たアイテムとメセタのログを扱えるようになりました。
+  + すべてまたは特定のアイテムについて取得状況の表示、一定期間での集計の表示を行えます。
+  + アイテムの取得数を条件に、一定数取得するごとにアクションを実行できます。
++ 起動時にアプリのバージョンと起動時刻を表示するようになりました。
++ このバージョンのリリースに併せて [NGS Log Action Wiki][] を作成しました！
 ## 1.2.3 (2021-08-09)
 
 + [POSTアクションを使うとNGS Log Actionが落ちる場合があるらしい: 投稿者の名前が非ASCII文字を含む場合に100%発生 #3](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/3) 不具合を修正しました！

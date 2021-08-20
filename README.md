@@ -3,6 +3,8 @@
 NGS Log Action は [PSO2NGS][] のチャットに連動して「何か」をしてくれるアプリです。
 
 - バージョンアップの新機能や調整は [Release-note.md](Release-note.md) をご確認下さい！
+- ダウンロードは [Releases](https://github.com/LMA-SHIP01-PSO2NGS/ngs-log-action/releases/) からどうぞ！
+- 困ったら [NGS Log Action Wiki](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki) もご覧下さい！
 
 ## 具体的にできる事の例
 
@@ -12,6 +14,10 @@ NGS Log Action は [PSO2NGS][] のチャットに連動して「何か」をし�
 + `if` `PARTY` または `GROUP` チャットで `/ラッピー/` と発言していたら `=>` お好みのコマンドを実行して何かをする
 + `if` `GUILD` 自分がチャットで「〘緊急警報発令〙ネクス・ヴェラ」と発言したら `=>` Web API `https://example.com/our_guild_sns/api` を叩く
   + 応用するとPSO2NGSでチャットに特定のキーワードを書いたり聞いたりしたら Web API 経由で Discord や Twitter の BOT に何かしてもらう、伝言のように転送して貰うこともできます。
++ `if` 取得したアイテムを集計する (>=1.3.0)
+  + `if` 自身が指定したキーワードやロビーアクションを使ったら取得したアイテムの集計結果を表示する
+  + `if` 1000メセタ拾う毎に取得したアイテムの集計結果を表示し音を鳴らす
+  + `if` 特定のレアアイテムを取得したら音を鳴らす
 
 ### 動作例のスクリーンショット
 

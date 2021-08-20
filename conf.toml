@@ -1,3 +1,6 @@
+# 設定方法で困ったら Wiki を見るとよいかもしれません。
+# Wiki https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki
+
 # このファイルでは # で始まる行はコメント行です。
 # コメント行はアプリの動作に関与しませんので、設定の書き方の解説をコメント行で書いてあります。
 
@@ -12,7 +15,7 @@ show_action_pattern = false
 #   01:23:45 AM 形式にしたい場合 → "%r"
 #   01時23分45秒 形式にしたい場合 → "%H時%M分%S秒"
 #   ISO8601     形式にしたい場合 → "%+"
-#   その他形式については https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html を参考に記述して下さい。
+#   その他の形式については https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html を参考に記述して下さい。
 datetime_format = "%T"
 # true ならログ表示に Guild や Party などチャンネル名を表示、 false なら非表示
 # なお、 false に設定した場合もチャットの色分けは行われます
@@ -22,10 +25,31 @@ column_separator = " "
 # ログ表示の名前部分を何文字まで空白文字で桁埋めするか設定します。
 # すべて全角で最大文字数のキャラクターネームに合わせるなら 30 を設定します。
 # 桁揃えはある程度短い名前までにして、長い名前の人は名前欄がはみ出してもよい場合は少し小さくすると見やすいかもしれません。
-name_padding_width = 30
+name_padding_width = 15
 # チャンネル表示を何文字まで空白文字で桁埋めするか設定します。
 # 最も長いチャンネル名に合わせる場合は PUBLIC の 6 文字に合わせます。
-channel_padding_width = 0
+# channel_padding_width = 0
+
+# show などで表示されるログの色を ANSI256 カラーコードで設定できます。(ver.1.3.0以降)
+# カラーコードは https://en.wikipedia.org/wiki/ANSI_escape_code#8-bit を見るとわかりやすいです。
+# または https://github.com/junegunn/ansi256#reference-chart も見やすいかもしれません。
+# 未指定の場合は以下のコメントアウトで例示するカラーコードが使用されます。
+# color_public = 15
+# color_party = 14
+# color_guild = 172
+# color_group = 41
+# color_reply = 13
+# color_item = 227
+# color_system = 8
+
+# 1秒間に何回ログをチェックさせるか設定できます。 (ver.1.3.0以降)
+# 1 でも十分に動作しますが、ログのタイミングによってはたまにワンテンポ遅れて反応する気がするかもしれません。
+# 5 から 10 くらいに設定すると PSO2NGS のログからさほど遅れずに反応するように感じられると思います。
+# 60 など PSO2NGS のフレームレートに近い設定するほど理論上は遅延0に近づきますが、無駄に高い性能要求と負荷になるのでおすすめしません。
+# (※PSO2NGSがログをゲーム内で表示してからファイルに書き出すまでにも遅延もあるので、あまり高くしても効果が薄い事もあります。)
+# 遅延が気になる場合は 1 から徐々に数値を上げて音反応などで許せる遅延となる設定を探ってください。
+# ちなみに 1.23 のように小数点付きで設定もできます。
+polling_rate = 5
 
 # ここからは最初の version 1.0.0 からあるログに対するアクションの設定部分です
 # きほんてきに NGS Log Action の設定ファイルでは、 [[if]] と書くと1つの「もしｘｘならｙｙする」の
@@ -36,6 +60,7 @@ channel_padding_width = 0
 
 [[if]]
 action = {show = true}
+# action = {show = true,sound = "C:/Windows/Media/tada.wav"}
 
 # 特に条件を設定する項目を書かなればすべてのチャットログに反応する設定になります。
 # やらせたい「何か」は action = に続いて記述します。 show = true は【表示】を行います。
@@ -120,3 +145,47 @@ action = {show = true}
 # keywords = ["/la console2"]
 # names = ["L,A.M.", "L,A.M.Ⅱ", "L,A.M.Ⅲ"]
 # action = {show=true}
+
+# # ここから 1.3.0 で追加したアイテムログ機能の設定例です。
+# # ↓この設定ですべてのアイテムの取得をログ表示＆集計します
+# [[if]]
+# # 対象をアイテム取得系のログに設定します(Itemを設定するとチャットログには反応しなくなります)
+# target = "Item"
+# # show = true で表示、
+# # count = true で集計されます。
+# action = {show = true, count = true}
+# # keyword, regex, names などで対象アイテムを絞る事もできます
+# names = ["L,A.M.", "L,A.M.Ⅱ", "L,A.M.Ⅲ"]
+
+# # ↓重要かもしれないレアアイテムを入手したら音を鳴らす設定
+# [[if]]
+# target = "Item"
+# action = {sound = "C:/Windows/Media/tada.wav"}
+# keywords = ["ストラーガ", "フォーシスカタナ", "ヴィアルトボウ", "ソール", "キーパ", "ギガス", "Ⅲ", "Sign"]
+# names = ["L,A.M.", "L,A.M.Ⅱ", "L,A.M.Ⅲ"]
+
+# # 指定のアイテムが一定数集計される都度、集計結果を表示しつつ、音を鳴らす設定
+# [[if]]
+# # item_counts の条件を満たしたら取得アイテム集計を表示しつつ音を鳴らす
+# action = { show_item_counts = true, sound = "C:/Windows/Media/tada.wav" }
+# # メセタを 1k 取得ごと、
+# # エアルノート各種を20個取得ごと、
+# # 何かしらのカプセルのⅢを5個取得ごと、アクションさせる設定
+# item_counts = [ { keywords = ["Meseta"], every = 1000 },
+#                 { keywords = ["C/エアルノート"], every = 20 },
+#                 { regex = "C/.*Ⅲ", every = 5 }
+#               ]
+
+# # ↓自分が /la sivapose1 ロビアクを使う（ログに流す）と、
+# # 集計結果を表示(show_item_counts)し、集計状態をリセット(reset_item_result)します。
+# # もちろん、ロビアクではなく ##集計おわり## のようなログをキーワードに設定もできます。
+# [[if]]
+# action = {show_item_counts = true, reset_item_counts = true}
+# keywords = ["/la sivapose1", "#reset"]
+# names = ["L,A.M.", "L,A.M.Ⅱ", "L,A.M.Ⅲ"]
+
+# # ↓自分が /la ippuku ロビアクを使う（ログに流す）と、集計結果を表示します。
+# [[if]]
+# action = {show_item_counts = true}
+# keywords = ["/la ippuku", "#result"]
+# names = ["L,A.M.", "L,A.M.Ⅱ", "L,A.M.Ⅲ"]
