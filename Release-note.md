@@ -3,6 +3,7 @@
 ## 1.3.0 (2021-08-20)
 
 + [表示するログの色を好みに応じて変更](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/custom)できるようになりました！
+  + これに併せてデフォルトの配色をPSO2NGSのチャットの文字色により近い色に微調整しました。
 + [ログの取得間隔を変更](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/polling_rate)できるようになりました！
 + [取得アイテム集計機能](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/item)が実装されました！
   + 拾ったまたはリワードで得たアイテムとメセタのログを扱えるようになりました。
