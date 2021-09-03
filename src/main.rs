@@ -7,7 +7,6 @@ use dir::home_dir;
 use encoding_rs_io::DecodeReaderBytes;
 use once_cell::sync::Lazy;
 use std::{
- cmp::max,
  fs::{self, File},
  io::{BufRead, BufReader},
  path::PathBuf,
@@ -319,7 +318,7 @@ async fn get_new_chat_logs(
       let name = tail.next().unwrap().to_string();
       let mut body = unescape_double_quote(tail.next().unwrap());
       // 複数行の最初の行
-      if body == r#"""#{
+      if body == r#"""# {
        body = "\n".to_string();
       }
       if body.starts_with(r#"""#) && body.char_indices().nth(1).unwrap().1 != '"' {
@@ -399,13 +398,13 @@ async fn get_new_action_logs(
          false => {
           if let Some(buffer) = tail.next() {
            let buffer = buffer.to_string();
-           if buffer.starts_with("CurrentNum") {
-            1
-           } else {
+           if let Some(num_begin) = buffer.find("Num(") {
             // 例: 2021-08-19T20:40:17	243	[Pickup]	15161621	L,A.M.	N-グラインダー	Num(1)
-            //     2021-08-19T20:55:51	406	[Pickup]	15161621	L,A.M.	ツヴィアダガー	attr:NONE(0)
-            let num_begin = buffer.find("(").unwrap() + 1;
-            max(1, buffer[num_begin..buffer.len() - 1].parse().unwrap())
+            buffer[num_begin + 4..buffer.len() - 1].parse().unwrap()
+           } else {
+            // 例: 2021-08-19T20:55:51	406	[Pickup]	15161621	L,A.M.	ツヴィアダガー	attr:NONE(0)
+            //     2021-09-03T10:20:08	477	[Pickup]	15161621	L,A.M.	サプライズナックル	Level(13)
+            1
            }
           } else {
            // 例: 2021-08-19T20:40:56	249	[Pickup]	15161621	L,A.M.	ツヴィアアーマ
