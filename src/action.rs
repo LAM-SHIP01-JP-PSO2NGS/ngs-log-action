@@ -241,15 +241,23 @@ pub async fn show(ngs_log: &NgsLog) -> Result<()> {
   " ".repeat(std::cmp::max(0i16, name_padding_width as i16 - name_unicode_width as i16) as usize);
  let name_part = format!("{}{}{}", ngs_log.get_name(), name_padding, column_separator);
 
- writeln!(
-  &mut stdout,
-  "{}{}{}{}{}",
-  action_pattern_part,
-  datetime_part,
-  channel_part,
-  name_part,
-  ngs_log.get_body_or_item_with_count(),
- )?;
+ let output_first_part = format!(
+  "{}{}{}{}",
+  action_pattern_part, datetime_part, channel_part, name_part,
+ );
+
+ let output_body_part = if CONF.get_pretty_multiline() {
+  let output_first_part_unicode_width = UnicodeWidthStr::width(&output_first_part[..]);
+  let padding = " ".repeat(output_first_part_unicode_width);
+  let replacement = format!("\n{}", padding);
+  ngs_log
+   .get_body_or_item_with_count()
+   .replacen("\n", &replacement, 3)
+ } else {
+  ngs_log.get_body_or_item_with_count()
+ };
+
+ writeln!(&mut stdout, "{}{}", output_first_part, output_body_part,)?;
 
  Ok(())
 }

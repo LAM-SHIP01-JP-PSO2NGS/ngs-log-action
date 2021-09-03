@@ -24,6 +24,7 @@ pub struct Global {
  pub color_item: Option<u8>,
  pub color_system: Option<u8>,
  pub polling_rate: Option<f64>,
+ pub pretty_multiline: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -86,8 +87,15 @@ const DC_REPLY: u8 = 13;
 const DC_ITEM: u8 = 227;
 const DC_SYSTEM: u8 = 8;
 const DEFAULT_POLLING_RATE: f64 = 1.0;
+const DEFAULT_PRETTY_MULTILINE: bool = true;
 
 impl Conf {
+ pub fn get_pretty_multiline(&self) -> bool {
+  self.global.as_ref().map_or(DEFAULT_PRETTY_MULTILINE, |g| {
+   g.pretty_multiline.unwrap_or(DEFAULT_PRETTY_MULTILINE)
+  })
+ }
+
  pub fn get_polling_rate(&self) -> f64 {
   self.global.as_ref().map_or(DEFAULT_POLLING_RATE, |g| {
    g.polling_rate.unwrap_or(DEFAULT_POLLING_RATE)
