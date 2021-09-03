@@ -135,8 +135,8 @@ pub async fn show_item_counts() -> Result<()> {
  let dt = format!(
   r#"{:02}°{:02}'{:02}""#,
   dt.num_hours(),
-  dt.num_minutes(),
-  dt.num_seconds()
+  dt.num_minutes() % 60,
+  dt.num_seconds() % 60
  );
  let mut stdout = StandardStream::stdout(ColorChoice::Always);
  let color = Some(Color::Ansi256(CONF.get_color_ansi256_item()));
