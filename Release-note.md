@@ -1,5 +1,19 @@
 [NGS Log Action Wiki]: https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki
 
+## 1.4.0 (2021-09-04)
+
++ 複数行のチャットログの行頭を同じ桁に揃えて読みやすくする `pretty_multiline = true` 設定を `[global]` に追加しました。
+  + この設定はデフォルトで `true` です。コンフィグファイルに追記しなくても有効な状態で動作します。
+  + 以前のバージョンのように桁揃えなしで使用したい場合は `false` を明示的にコンフィグファイルに記述して下さい。
+  + 関連 Issue ⇨ [複数行のログの改行後に行頭から詰めて表示するのではなく1行目の先頭に2行目以降も行頭をあわせる機能・設定が欲しい #7](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/7)
+  + 関連 Wiki ⇨ [色や時刻の表示形式など表示を自分好みにカスタマイズしたい / 複数行の表示形式](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/custom#%E8%A4%87%E6%95%B0%E8%A1%8C%E3%81%AE%E8%A1%A8%E7%A4%BA%E5%BD%A2%E5%BC%8F)
++ 1行目が改行のみのログがあるとアプリが100%落ちる不具合を修正しました。
+  + 関連 Issue ⇨ [1行目が改行のみのログがあるとアプリが100%落ちる不具合がある #8](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/8)
++ 取得アイテム集計の経過時間表示の秒と分の表示を時分秒で期待される表示となるよう不具合を修正しました。
+  + 関連 Issue ⇨ [取得アイテム集計の経過時間表示の秒のとこがなんかおかしい #4](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/4)
++ PSO2(1000年前)でディスクを入手した際のログで誤ってLvが数量と認識される不具合を修正しました。
+  + 関連 Issue ⇨ [PSO2(1000年前)でディスクを入手した際のログで誤ってLvが数量と認識される不具合 #6](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/issues/6)
+
 ## 1.3.0 (2021-08-20)
 
 + [表示するログの色を好みに応じて変更](https://github.com/LAM-SHIP01-JP-PSO2NGS/ngs-log-action/wiki/custom)できるようになりました！
