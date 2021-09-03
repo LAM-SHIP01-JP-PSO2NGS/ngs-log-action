@@ -319,6 +319,9 @@ async fn get_new_chat_logs(
       let name = tail.next().unwrap().to_string();
       let mut body = unescape_double_quote(tail.next().unwrap());
       // 複数行の最初の行
+      if body == r#"""#{
+       body = "\n".to_string();
+      }
       if body.starts_with(r#"""#) && body.char_indices().nth(1).unwrap().1 != '"' {
        body = body[1..].to_string();
       }
